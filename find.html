@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Search Results</h1>
+<h2>Details</h2>
+<p>You searched for: {{ input }}</p>
+<p>Match found: {{ match }}</p>
+<p>This medicine contains {{ contents }}, is manufactured by {{ manufacturer }}, and costs {{ price }} per strip.</p>
+<h2>Alternatives</h2>
+  <p>Here are some medicines similar to {{ match }}:</p>
+  <table>    
+  <tr>
+      <th>Name</th>
+      <th>Price per tablet (in rupees)</th>
+      <th>Manufacturer's Name</th>
+      <th>Composition</th>
+      <th>Link to Buy</th>
+    </tr>
+
+    {% for medicine in alternatives.data %}
+      <tr>
+            <td>{{medicine[1]}}</td>
+            <td>{{medicine[2]}}</td>
+            <td>{{medicine[3]}}</td>
+            <td>{{medicine[6]}}</td>
+            <td><a href="https://www.1mg.com/search/all?name={{medicine[1]}}">Buy Now</a></td>
+      </tr>
+        {% endfor %}
+    </table>
+{% endblock %}

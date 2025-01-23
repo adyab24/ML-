@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block content %}
+<p style="text-align: center; margin-top: 20px;">
+    Enter the image of the prescription and crop so that only the name of the medicine is visible.
+</p>
+    <div class="input-container">
+        <input type="file" id="imageInput" accept="image/*">
+    </div>
+    <div class="container">
+        <img id="image" src="">
+    </div>
+    <div class="button-container">
+        <button onclick="getCroppedImage()">Crop & Send</button>
+    </div>
+    <p style="text-align: center; margin-top: 20px;">
+        Search by name of medicine
+    </p>
+    <form action="/find" method="get" style="text-align: center; margin-top: 20px;">
+        <input type="text" name="q" placeholder="Or enter medicine name" required style="width: 50%; padding: 10px;">
+        <button type="submit">Search by Name</button>
+    </form>
+    <div id="result"></div>   
+    
+    <script src="https://cdn.jsdelivr.net/npm/cropperjs/dist/cropper.js"></script>
+    <script>
+        var cropper;
+        document.getElementById('imageInput').addEventListener('change', function (event) {
+            var files = event.target.files;
+            var reader = new FileReader();
+            reader.onload = function (e) {
+                document.getElementById('image').src = e.target.result;
+                if (cropper) {
+                    cropper.replace(e.target.result);
+                } else {
+                    cropper = new Cropper(document.getElementById('image'), {
+                        viewMode: 1,
+                        dragMode: 'crop',
+                        autoCropArea: 1,
+                        restore: false,
+                        guides: true,
+                        highlight: true,
+                        cropBoxMovable: true,
+                        cropBoxResizable: true
+                    });
+                }
+            };
+            reader.readAsDataURL(files[0]);
+        });
+
+        function getCroppedImage() {
+            cropper.getCroppedCanvas().toBlob(function (blob) {
+                var formData = new FormData();
+                formData.append('croppedImage', blob, 'cropped.png');
+                document.body.style.cursor = "wait";
+                fetch('/upload', {
+                    method: 'POST',
+                    body: formData,
+                })
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById("result").innerHTML=data;
+                    document.body.style.cursor = "";
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    document.body.style.cursor = "";
+                });
+
+            });
+        }
+</script>
+{% endblock %}
